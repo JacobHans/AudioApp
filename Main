@@ -1,0 +1,118 @@
+package com.example.soudio;
+
+import java.io.IOException;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
+import android.os.Environment;
+import android.widget.Button;
+import android.widget.Toast;
+import android.media.MediaPlayer;
+	
+public class Tester extends ActionBarActivity{
+
+
+	protected boolean hasMicrophone() {
+		PackageManager pmanager = this.getPackageManager();
+		return pmanager.hasSystemFeature(
+               PackageManager.FEATURE_MICROPHONE);
+	}
+
+	private static MediaRecorder mediaRecorder;
+
+	private static MediaPlayer mediaPlayer;
+	private static boolean app = true;
+	Button playButtons, stopButtons;
+
+	private static String audioFilePath;
+	
+	private boolean isRecording = false;
+
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.tester);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		
+		final Button playButtons = (Button) findViewById(R.id.playButton);
+		final Button stopButtons = (Button) findViewById(R.id.stopButton);
+		
+		audioFilePath = 
+            Environment.getExternalStorageDirectory().getAbsolutePath() 
+                 + "/myaudio.3gp";
+
+	}
+	void Recorder(){
+
+	while(app){
+		 isRecording = true;
+		 playButtons.setEnabled(false);
+		 stopButtons.setEnabled(true);
+		 Toast record = Toast.makeText(Tester.this, "Recording", Toast.LENGTH_LONG);
+
+		   try {
+		     mediaRecorder = new MediaRecorder();
+		     mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		     mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		     mediaRecorder.setOutputFile(audioFilePath);
+		     mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+		     mediaRecorder.prepare();
+		   } catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+		   mediaRecorder.start();
+		     try {
+				if (isRecording)
+				{	
+					mediaRecorder.stop();
+					mediaRecorder.release();
+					mediaRecorder = null;
+					isRecording = false;
+				} else {
+					mediaPlayer.release();
+				        mediaPlayer = null;
+				}
+			}finally{
+				mediaPlayer = new MediaPlayer();
+				try {
+					mediaPlayer.setDataSource(audioFilePath);
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					mediaPlayer.prepare();
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				mediaPlayer.start();
+				mediaPlayer.stop();
+			}
+		   }
+	}
+}
+}
